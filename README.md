@@ -183,11 +183,11 @@ Call this workflow from another workflow using the **Execute Workflow** node:
 ## Screenshots
 
 ### Workflow Overview
-![Workflow Overview](screenshots/workflow-overview.png)
+![Workflow Overview](screenshots/workflow_overview.png)
 *Complete workflow showing all nodes and connections*
 
 ### Example Output
-![Example Output](screenshots/example-output.png)
+![Example Output](screenshots/example_output.png)
 *Extracted text from PDF in Markdown format*
 
 ## Troubleshooting
