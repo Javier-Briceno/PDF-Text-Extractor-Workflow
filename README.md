@@ -180,6 +180,16 @@ Call this workflow from another workflow using the **Execute Workflow** node:
    - Binary data with PDF file
    - JSON with `file_hash`, `fileSize`, `mimeType`, `fileName`
 
+## Screenshots
+
+### Workflow Overview
+![Workflow Overview](screenshots/workflow-overview.png)
+*Complete workflow showing all nodes and connections*
+
+### Example Output
+![Example Output](screenshots/example-output.png)
+*Extracted text from PDF in Markdown format*
+
 ## Troubleshooting
 
 ### "Binary data not found" error
