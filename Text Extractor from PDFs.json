@@ -1,0 +1,502 @@
+{
+  "name": "Text Extractor from PDFs",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "id": "c055762a-8fe7-4141-a639-df2372f30060",
+      "typeVersion": 1.1,
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        384,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "inputDataFieldName": "={{ Object.keys($binary)[0] }}",
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1T5SjhrY1vnmkguAy0zKD6aXG8CCosV-P",
+          "mode": "list",
+          "cachedResultName": "Files from Workflows",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1T5SjhrY1vnmkguAy0zKD6aXG8CCosV-P"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1280,
+        384
+      ],
+      "id": "3aa1f314-08b8-41fa-9a10-e18098b22ada",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "UH0gq2Fjk0wxEwgo",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.mathpix.com/v3/pdf",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "app_id",
+              "value": "app_id"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json.downloadUrl }}\",\n  \"conversion_formats\": {\n    \"md\": true\n  },\n  \"math_inline_delimiters\": [\"$\", \"$\"],\n  \"math_display_delimiters\": [\"$$\", \"$$\"],\n  \"enable_tables_fallback\": true,\n  \"rm_spaces\": true\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        1728,
+        384
+      ],
+      "id": "2356bca1-d324-4e7d-80cb-7fe71fdbfaca",
+      "name": "Connect to Mathpix",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "lJg8RtYDBCEkuBx2",
+          "name": "Header Auth Mathpix 1"
+        },
+        "httpCustomAuth": {
+          "id": "zPMcBfMg8PKVoa1O",
+          "name": "MathPix Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.mathpix.com/v3/pdf/{{ $json.pdf_id }}.md",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "app_id",
+              "value": "app_id"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        2176,
+        384
+      ],
+      "id": "28924ac4-5e6f-42e9-b68f-2533e663437f",
+      "name": "Download Mathpix Result",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "lJg8RtYDBCEkuBx2",
+          "name": "Header Auth Mathpix"
+        },
+        "httpCustomAuth": {
+          "id": "zPMcBfMg8PKVoa1O",
+          "name": "MathPix Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1952,
+        384
+      ],
+      "id": "0b1d7578-28d7-4c8b-b96f-c9878ab45a6c",
+      "name": "Wait",
+      "webhookId": "fa823007-f482-4fd9-8cee-6b204dc7753b"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const fileId = $json.id;\nconst fileName = $json.name;\n\n// URL de descarga directa de Google Drive\nconst downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;\n\nconsole.log('📄 Archivo:', fileName);\nconsole.log('🔗 URL:', downloadUrl);\n\nreturn {\n  json: {\n    fileName: fileName,\n    fileId: fileId,\n    downloadUrl: downloadUrl,\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1504,
+        384
+      ],
+      "id": "f050d365-90f1-4159-809f-d46118043752",
+      "name": "Prepare URL"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "pdf_extracted_text_cache",
+          "mode": "list",
+          "cachedResultName": "pdf_extracted_text_cache"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "google_drive_file_id": "={{ $('Upload file').item.json.id }}",
+            "file_name": "={{ $('Upload file').item.json.name }}",
+            "extracted_text": "={{ $json.data }}",
+            "created_at": "={{ $now }}",
+            "file_hash": "={{ $('When Executed by Another Workflow').item.json.file_hash }}",
+            "file_size": "={{ $('When Executed by Another Workflow').item.json.fileSize }}",
+            "mime_type": "={{ $('When Executed by Another Workflow').item.json.mimeType }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "google_drive_file_id",
+              "displayName": "google_drive_file_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "file_name",
+              "displayName": "file_name",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "extracted_text",
+              "displayName": "extracted_text",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "file_hash",
+              "displayName": "file_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "file_size",
+              "displayName": "file_size",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mime_type",
+              "displayName": "mime_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        2400,
+        384
+      ],
+      "id": "09d5a6c6-e033-44d3-82b2-37a7ba96ec48",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "FXEG0dQzOuAcjlhc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT EXISTS (\nSELECT file_name\nFROM pdf_extracted_text_cache\nWHERE file_hash = $1\nLIMIT 1\n  ) AS exists;",
+        "options": {
+          "queryReplacement": "={{ $json.file_hash }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        608,
+        288
+      ],
+      "id": "203db531-6af0-4bda-b078-d752987a2fde",
+      "name": "Search File Name",
+      "credentials": {
+        "postgres": {
+          "id": "FXEG0dQzOuAcjlhc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f7973819-0adc-48da-b831-9046dba04946",
+              "leftValue": "={{ $json.exists === true }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        288
+      ],
+      "id": "4cbd87d8-5de3-4dcc-9312-a9849bd5cd3c",
+      "name": "File Uplodaded Before?"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT *\nFROM pdf_extracted_text_cache\nWHERE file_hash = $1",
+        "options": {
+          "queryReplacement": "={{ $('When Executed by Another Workflow').item.json.file_hash }}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1056,
+        192
+      ],
+      "id": "64e73511-b38d-4906-a98f-c5164ad7d764",
+      "name": "Retrieve File From DB",
+      "credentials": {
+        "postgres": {
+          "id": "FXEG0dQzOuAcjlhc",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const triggerData = $('When Executed by Another Workflow').item;\nreturn {\n  json: triggerData.json,\n  binary: triggerData.binary\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1056,
+        384
+      ],
+      "id": "fe52545a-8ecc-42ac-8f99-752f79415c34",
+      "name": "Pass Binary Data"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Search File Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Connect to Mathpix": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Download Mathpix Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare URL": {
+      "main": [
+        [
+          {
+            "node": "Connect to Mathpix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Prepare URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Mathpix Result": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search File Name": {
+      "main": [
+        [
+          {
+            "node": "File Uplodaded Before?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Uplodaded Before?": {
+      "main": [
+        [
+          {
+            "node": "Retrieve File From DB",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Pass Binary Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Binary Data": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "a51cd831-bf60-4aee-a047-1a5c3cfbc068",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "19b5c45878e0c37a2dfdebb10fe6ad07185f82630e5b3f64f267192bd053cf0b"
+  },
+  "id": "vpvzEqPt0gc0x7sg",
+  "tags": []
+}
