@@ -11,7 +11,7 @@
       "type": "n8n-nodes-base.executeWorkflowTrigger",
       "position": [
         384,
-        288
+        32
       ]
     },
     {
@@ -35,8 +35,8 @@
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
       "position": [
-        1280,
-        384
+        1504,
+        128
       ],
       "id": "3aa1f314-08b8-41fa-9a10-e18098b22ada",
       "name": "Upload file",
@@ -74,8 +74,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        1728,
-        384
+        1952,
+        128
       ],
       "id": "2356bca1-d324-4e7d-80cb-7fe71fdbfaca",
       "name": "Connect to Mathpix",
@@ -109,15 +109,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        2176,
-        384
+        2400,
+        128
       ],
       "id": "28924ac4-5e6f-42e9-b68f-2533e663437f",
       "name": "Download Mathpix Result",
       "credentials": {
         "httpHeaderAuth": {
           "id": "lJg8RtYDBCEkuBx2",
-          "name": "Header Auth Mathpix"
+          "name": "Header Auth Mathpix 1"
         },
         "httpCustomAuth": {
           "id": "zPMcBfMg8PKVoa1O",
@@ -130,8 +130,8 @@
       "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        1952,
-        384
+        2176,
+        128
       ],
       "id": "0b1d7578-28d7-4c8b-b96f-c9878ab45a6c",
       "name": "Wait",
@@ -145,8 +145,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1504,
-        384
+        1728,
+        128
       ],
       "id": "f050d365-90f1-4159-809f-d46118043752",
       "name": "Prepare URL"
@@ -171,7 +171,7 @@
             "file_name": "={{ $('Upload file').item.json.name }}",
             "extracted_text": "={{ $json.data }}",
             "created_at": "={{ $now }}",
-            "file_hash": "={{ $('When Executed by Another Workflow').item.json.file_hash }}",
+            "file_hash": "={{ $('Crypto').item.json.file_hash }}",
             "file_size": "={{ $('When Executed by Another Workflow').item.json.fileSize }}",
             "mime_type": "={{ $('When Executed by Another Workflow').item.json.mimeType }}"
           },
@@ -271,8 +271,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        2400,
-        384
+        2624,
+        128
       ],
       "id": "09d5a6c6-e033-44d3-82b2-37a7ba96ec48",
       "name": "Insert rows in a table",
@@ -294,8 +294,8 @@
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        608,
-        288
+        832,
+        32
       ],
       "id": "203db531-6af0-4bda-b078-d752987a2fde",
       "name": "Search File Name",
@@ -334,8 +334,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        832,
-        288
+        1056,
+        32
       ],
       "id": "4cbd87d8-5de3-4dcc-9312-a9849bd5cd3c",
       "name": "File Uplodaded Before?"
@@ -345,14 +345,14 @@
         "operation": "executeQuery",
         "query": "SELECT *\nFROM pdf_extracted_text_cache\nWHERE file_hash = $1",
         "options": {
-          "queryReplacement": "={{ $('When Executed by Another Workflow').item.json.file_hash }}"
+          "queryReplacement": "={{ $('Crypto').item.json.file_hash }}"
         }
       },
       "type": "n8n-nodes-base.postgres",
       "typeVersion": 2.6,
       "position": [
-        1056,
-        192
+        1280,
+        -64
       ],
       "id": "64e73511-b38d-4906-a98f-c5164ad7d764",
       "name": "Retrieve File From DB",
@@ -371,11 +371,27 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1056,
-        384
+        1280,
+        128
       ],
       "id": "fe52545a-8ecc-42ac-8f99-752f79415c34",
       "name": "Pass Binary Data"
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "binaryData": true,
+        "binaryPropertyName": "={{ Object.keys($binary)[0] }}",
+        "dataPropertyName": "file_hash"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [
+        608,
+        32
+      ],
+      "id": "fe60e17a-693b-4e51-aab4-9672709bc1dc",
+      "name": "Crypto"
     }
   ],
   "pinData": {},
@@ -384,7 +400,7 @@
       "main": [
         [
           {
-            "node": "Search File Name",
+            "node": "Crypto",
             "type": "main",
             "index": 0
           }
@@ -485,6 +501,17 @@
           }
         ]
       ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "Search File Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "active": true,
@@ -492,7 +519,7 @@
     "executionOrder": "v1",
     "availableInMCP": false
   },
-  "versionId": "a51cd831-bf60-4aee-a047-1a5c3cfbc068",
+  "versionId": "bae8d1ce-46ff-42f2-86f3-0802a9fce42e",
   "meta": {
     "templateCredsSetupCompleted": true,
     "instanceId": "19b5c45878e0c37a2dfdebb10fe6ad07185f82630e5b3f64f267192bd053cf0b"
