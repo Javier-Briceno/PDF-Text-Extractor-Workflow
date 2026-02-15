@@ -1,5 +1,7 @@
 # PDF-Textextraktor-Workflow
 
+*English version below / Deutsche Version zuerst*
+
 Ein n8n-Workflow, der automatisch Text aus PDF-Dateien mit der Mathpix OCR-API extrahiert, mit intelligentem Caching, um eine erneute Verarbeitung derselben Dateien zu vermeiden.
 
 ## Funktionen
@@ -226,8 +228,6 @@ Für Probleme im Zusammenhang mit:
 - **Mathpix API**: Überprüfen Sie die [Mathpix-Dokumentation](https://docs.mathpix.com/)
 - **Diesem Workflow**: Öffnen Sie ein Issue in diesem Repository
 
----
----
 ---
 
 # PDF Text Extractor Workflow
