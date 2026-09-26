@@ -25,10 +25,10 @@
         },
         "folderId": {
           "__rl": true,
-          "value": "1T5SjhrY1vnmkguAy0zKD6aXG8CCosV-P",
+          "value": "YOUR_FOLDER_ID",
           "mode": "list",
           "cachedResultName": "Files from Workflows",
-          "cachedResultUrl": "https://drive.google.com/drive/folders/1T5SjhrY1vnmkguAy0zKD6aXG8CCosV-P"
+          "cachedResultUrl": "https://drive.google.com/drive/folders/YOUR_FOLDER_ID"
         },
         "options": {}
       },
@@ -514,7 +514,7 @@
       ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
     "availableInMCP": false
